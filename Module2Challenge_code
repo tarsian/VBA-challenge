@@ -1,0 +1,142 @@
+Sub stockmarket()
+Dim Ticker As String
+Dim year_open As Double
+Dim year_close As Double
+Dim Yearly_Change As Double
+Dim Total_Stock_Volume As Double
+Dim Percent_Change As Double
+Dim start_data As Integer
+Dim ws As Worksheet
+
+'--------------------------------------------------
+
+For Each ws In Worksheets
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Yearly Change"
+    ws.Range("K1").Value = "Percent Change"
+    ws.Range("L1").Value = "Total Stock Volume"
+
+    start_data = 2
+    previous_i = 1
+    Total_Stock_Volume = 0
+
+    EndRow = ws.Cells(Rows.Count, "A").End(xlUp).Row
+
+        For i = 2 To EndRow
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+            Ticker = ws.Cells(i, 1).Value
+            previous_i = previous_i + 1
+            year_open = ws.Cells(previous_i, 3).Value
+            year_close = ws.Cells(i, 6).Value
+            For j = previous_i To i
+
+                Total_Stock_Volume = Total_Stock_Volume + ws.Cells(j, 7).Value
+
+            Next j
+            If year_open = 0 Then
+                Percent_Change = year_close
+            Else
+                Yearly_Change = year_close - year_open
+                Percent_Change = Yearly_Change / year_open
+
+            End If
+            ws.Cells(start_data, 9).Value = Ticker
+            ws.Cells(start_data, 10).Value = Yearly_Change
+            ws.Cells(start_data, 11).Value = Percent_Change
+            ws.Cells(start_data, 11).NumberFormat = "0.00%"
+            ws.Cells(start_data, 12).Value = Total_Stock_Volume
+            start_data = start_data + 1
+            Total_Stock_Volume = 0
+            Yearly_Change = 0
+            Percent_Change = 0
+            previous_i = i
+
+        End If
+    Next i
+    
+    kEndRow = ws.Cells(Rows.Count, "K").End(xlUp).Row
+    
+    Inc = 0
+    Dec = 0
+    Max = 0
+        For k = 3 To kEndRow
+            last_k = k - 1
+            current_k = ws.Cells(k, 11).Value
+            prevous_k = ws.Cells(last_k, 11).Value
+            volume = ws.Cells(k, 12).Value
+            prevous_vol = ws.Cells(last_k, 12).Value
+            
+            If Inc > current_k And Inc > prevous_k Then
+                Inc = Inc
+            ElseIf current_k > Inc And current_k > prevous_k Then
+                Inc = current_k
+                inc_name = ws.Cells(k, 9).Value
+            ElseIf prevous_k > Inc And prevous_k > current_k Then
+                Inc = prevous_k
+                inc_name = ws.Cells(last_k, 9).Value
+
+            End If
+
+            If Dec < current_k And Dec < prevous_k Then
+                Dec = Dec
+            ElseIf current_k < Inc And current_k < prevous_k Then
+                Dec = current_k
+                dec_name = ws.Cells(k, 9).Value
+
+            ElseIf prevous_k < Inc And prevous_k < current_k Then
+                Dec = prevous_k
+                dec_name = ws.Cells(last_k, 9).Value
+
+            End If
+            
+            If Max > volume And Max > prevous_vol Then
+
+                Max = Max
+
+            ElseIf volume > Max And volume > prevous_vol Then
+
+                Max = volume
+                Max_name = ws.Cells(k, 9).Value
+
+            ElseIf prevous_vol > Max And prevous_vol > volume Then
+
+                Max = prevous_vol
+                Max_name = ws.Cells(last_k, 9).Value
+
+            End If
+
+        Next k
+    
+    ws.Range("N1").Value = "Column Name"
+    ws.Range("N2").Value = "Max % Inc"
+    ws.Range("N3").Value = "Max % Dec"
+    ws.Range("N4").Value = "Max Total Volume"
+    ws.Range("O1").Value = "Ticker Name"
+    ws.Range("P1").Value = "Value"
+    ws.Range("O2").Value = inc_name
+    ws.Range("O3").Value = dec_name
+    ws.Range("O4").Value = Max_name
+    ws.Range("P2").Value = Inc
+    ws.Range("P3").Value = Dec
+    ws.Range("P4").Value = Max
+    ws.Range("P2").NumberFormat = "0.00%"
+    ws.Range("P3").NumberFormat = "0.00%"
+    
+    jEndRow = ws.Cells(Rows.Count, "J").End(xlUp).Row
+
+
+        For j = 2 To jEndRow
+            If ws.Cells(j, 10) > 0 Then
+
+                ws.Cells(j, 10).Interior.ColorIndex = 4
+
+            Else
+
+                ws.Cells(j, 10).Interior.ColorIndex = 3
+            End If
+
+        Next j
+Next ws
+
+End Sub
+
